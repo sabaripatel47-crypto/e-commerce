@@ -36,10 +36,10 @@ module.exports = {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       '/proxyApi': {
         // target: `http://localhost:8080`,
-        target:'https://e-commerce.zhihetest.com/',
+        target:'https://e-commerce.zhihetest.com/prod-api',
         changeOrigin: true,
         pathRewrite: {
-          '^/proxyApi': '/'
+          '^/proxyApi': ''
         }
       }
     },
