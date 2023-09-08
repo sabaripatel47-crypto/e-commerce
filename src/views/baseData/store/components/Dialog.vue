@@ -24,10 +24,10 @@
       </el-form-item>
       <el-form-item label="所属公司" prop="enterprise">
         <el-select v-model="bdmStore.enterprise" placeholder="请选择所属公司">
-          <el-option label="智盒1" value="智盒1"></el-option>
-          <el-option label="智盒2" value="智盒2"></el-option>
-          <el-option label="智盒3" value="智盒3"></el-option>
-          <el-option label="智盒4" value="智盒4"></el-option>
+          <el-option label="公司1" value="公司1"></el-option>
+          <el-option label="公司2" value="公司2"></el-option>
+          <el-option label="公司3" value="公司3"></el-option>
+          <el-option label="公司4" value="公司4"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="店铺规模" prop="scale">
@@ -57,7 +57,7 @@
   </el-dialog>
 </template>
 <script>
-import { addStore, storeDetail, editStore } from '@/api/baseData/store'
+import { addStore, editStore } from '@/api/baseData/store'
 export default {
   name: 'Dialog',
   props: {

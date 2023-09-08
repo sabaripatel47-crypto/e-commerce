@@ -4,38 +4,42 @@
     <div class="page-search">
       <el-form class="page-search" inline ref="page-filter">
         <el-form-item prop="keyword" label="关键字搜索：" style="margin-right: 20px;">
-          <el-input placeholder="请输入关键字" class="handle-input"></el-input>
+          <el-input placeholder="请输入关键字" class="handle-input" v-model="reqParams.code"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search">搜索</el-button>
+          <el-button type="primary" icon="el-icon-search" @click="getList()">搜索</el-button>
         </el-form-item>
         <br />
         <el-form-item>
-          <el-button type="primary" icon="el-icon-plus">新增</el-button>
+          <el-button type="primary" icon="el-icon-plus" @click="addList()">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="container">
       <!-- 表格 -->
-      <el-table :data="productList" style="width: 100%" height="250">
-        <el-table-column fixed="left" prop="date" label="序号" width="90"></el-table-column>
-        <el-table-column prop="date" label="产品编号" width="120"></el-table-column>
-        <el-table-column prop="date" label="产品名称" width="120"></el-table-column>
-        <el-table-column prop="name" label="产品型号" width="120"></el-table-column>
-        <el-table-column prop="province" label="产品规格" width="120"></el-table-column>
-        <el-table-column prop="city" label="产品介绍" width="120"></el-table-column>
-        <el-table-column prop="address" label="产品价格" width="120"></el-table-column>
-        <el-table-column prop="address" label="上市时间" width="120"></el-table-column>
-        <el-table-column prop="address" label="新品标识" width="120"></el-table-column>
-        <el-table-column prop="address" label="新品说明" width="120"></el-table-column>
-        <el-table-column prop="address" label="产品状态" width="120"></el-table-column>
-        <el-table-column prop="name" label="产品负责人" width="120"></el-table-column>
-        <el-table-column prop="name" label="sku明细" width="120"></el-table-column>
+      <el-table :data="productList" style="width: 100%" max-height="250">
+        <el-table-column fixed="left" type="index" label="序号" width="70"></el-table-column>
+        <el-table-column prop="code" label="产品编号" width="120"></el-table-column>
+        <el-table-column prop="name" label="产品名称" width="120"></el-table-column>
+        <el-table-column prop="model" label="产品型号" width="120"></el-table-column>
+        <el-table-column prop="specifications" label="产品规格" width="120"></el-table-column>
+        <el-table-column prop="introduction" label="产品介绍" width="120"></el-table-column>
+        <el-table-column prop="price" label="产品价格" width="120"></el-table-column>
+        <el-table-column prop="ttm" label="上市时间" width="120"></el-table-column>
+        <el-table-column prop="newFlag" label="新品标志" width="120"></el-table-column>
+        <el-table-column prop="newDescription" label="新品说明" width="120"></el-table-column>
+        <el-table-column prop="state" label="产品状态" width="120"></el-table-column>
+        <el-table-column prop="manager" label="产品负责人" width="120"></el-table-column>
+        <el-table-column label="sku明细" width="120">
+          <template v-slot="{row}">
+            <el-link type="primary" @click="goSKU(row.code)">产品明细</el-link>
+          </template>
+        </el-table-column>
         <el-table-column fixed="right" label="操作" width="220">
-          <template>
-            <el-button size="mini">修改</el-button>
-            <el-button size="mini">删除</el-button>
-            <el-button size="mini">详情</el-button>
+          <template v-slot="{row}">
+            <el-button size="mini" @click="editProduct(row)">修改</el-button>
+            <el-button size="mini" @click="deleteProduct(row.id)">删除</el-button>
+            <el-button size="mini" @click="getProductDetail(row.id)">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -51,25 +55,110 @@
         />
       </el-row>-->
     </div>
+    <!-- 新增弹层 -->
+    <Dialog v-if="showAddDialog" :row.sync="row" :showAddDialog.sync="showAddDialog"></Dialog>
+    <!-- 详情弹层 -->
+    <el-dialog :visible="showDetail" @close="showDetail = false" width="40%">
+      <el-descriptions title="产品详情" :column="2">
+        <el-descriptions-item label="产品编号">{{ detailList.code }}</el-descriptions-item>
+        <el-descriptions-item label="产品名称">{{ detailList.name }}</el-descriptions-item>
+        <el-descriptions-item label="产品型号">{{ detailList.model }}</el-descriptions-item>
+        <el-descriptions-item label="产品规格">{{ detailList.specifications }}</el-descriptions-item>
+        <el-descriptions-item label="产品介绍">{{ detailList.introduction }}</el-descriptions-item>
+        <el-descriptions-item label="产品价格">{{ detailList.price }}</el-descriptions-item>
+        <el-descriptions-item label="上市时间">{{ detailList.ttm }}</el-descriptions-item>
+        <el-descriptions-item label="新品标志">{{ detailList.newFlag }}</el-descriptions-item>
+        <el-descriptions-item label="新品说明">{{ detailList.newDescription }}</el-descriptions-item>
+        <el-descriptions-item label="产品状态">{{ detailList.state ==='0'?'正常':'关闭' }}</el-descriptions-item>
+        <el-descriptions-item label="产品负责人">{{ detailList.manager }}</el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getProductList } from '@/api/baseData/product'
+import {
+  getProductList,
+  productDetail,
+  deleteProduct,
+} from '@/api/baseData/product'
+import Dialog from './components/Dialog.vue'
 export default {
   name: 'Product',
+  components: {
+    Dialog,
+  },
   data() {
     return {
       productList: [],
+      showAddDialog: false,
+      row: {},
+      showDetail: false,
+      detailList: {},
+      reqParams: {
+        code: null,
+      },
     }
   },
   created() {
-    this.getProductList()
+    this.getList()
   },
   methods: {
-    async getProductList() {
-      const res = await getProductList()
-      console.log(res)
+    // 跳转到SKU页面
+    goSKU(id) {
+      this.$router.push({ name: 'Commoditysku', query: { id } })
+    },
+    // 清空
+    clearRow() {
+      this.row = {}
+    },
+    // 获取数据列表
+    async getList() {
+      const res = await getProductList(this.reqParams)
+      this.productList = res.rows
+      console.log(this.productList)
+    },
+    // 新增
+    addList() {
+      this.showAddDialog = true
+    },
+    // 详情
+    async getProductDetail(id) {
+      this.showDetail = true
+      const res = await productDetail(id)
+      this.detailList = res.data
+    },
+    // 修改
+    async editProduct(row) {
+      this.showAddDialog = true
+      this.row = row
+      console.log('row', this.row)
+    },
+    // 删除
+    deleteProduct(id) {
+      this.$to(
+        this.$confirm('确定删除此店铺？', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          beforeClose: async (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true
+              instance.confirmButtonText = '删除中...'
+              await deleteProduct(id)
+              instance.confirmButtonLoading = false
+              await done()
+              await this.getList()
+              this.$message({
+                type: 'success',
+                message: '删除店铺成功！',
+              })
+            } else {
+              await done()
+            }
+          },
+        })
+      )
     },
   },
 }

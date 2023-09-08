@@ -1,10 +1,11 @@
 import request from "@/utils/request";
 
 // 产品管理数据列表
-export function getProductList() {
+export function getProductList(params) {
   return request({
     url: "/server/product/list",
     method: "get",
+    params,
   });
 }
 
@@ -37,16 +38,7 @@ export function editProduct(data) {
 // 删除产品
 export function deleteProduct(ids) {
   return request({
-    url: `/product/delete/${ids}`,
+    url: `/server/product/delete/${ids}`,
     method: "post",
-  });
-}
-
-// 查询产品
-export function queryProduct(data) {
-  return request({
-    url: `/server/product/list`,
-    method: "get",
-    data,
   });
 }

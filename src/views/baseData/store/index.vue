@@ -18,7 +18,7 @@
     <div class="container">
       <!-- 表格 -->
       <el-table :data="storeList" style="width: 100%" max-height="400">
-        <el-table-column type="index" label="序号" width="90"></el-table-column>
+        <el-table-column type="index" label="序号" width="70"></el-table-column>
         <el-table-column prop="code" label="店铺编号" width="120"></el-table-column>
         <el-table-column prop="name" label="店铺名称" width="120"></el-table-column>
         <el-table-column prop="platform" label="所属平台" width="120"></el-table-column>
@@ -51,12 +51,7 @@
       </el-row>-->
     </div>
     <!-- 新增弹层 -->
-    <Dialog
-      v-if="showAddDialog"
-      :row.sync="row"
-      ref="dialogRef"
-      :showAddDialog.sync="showAddDialog"
-    ></Dialog>
+    <Dialog v-if="showAddDialog" :row.sync="row" :showAddDialog.sync="showAddDialog"></Dialog>
     <!-- 详情弹层 -->
     <el-dialog :visible="showDetail" @close="showDetail = false" width="40%">
       <el-descriptions title="店铺详情" :column="2">
@@ -89,8 +84,6 @@ export default {
       detailList: {},
       reqParams: {
         code: null,
-        name: null,
-        platform: null,
       },
     }
   },
@@ -98,9 +91,11 @@ export default {
     this.getList()
   },
   methods: {
+    // 清空数据
     clearRow() {
       this.row = {}
     },
+    // 获取列表信息
     async getList() {
       const res = await getStoreList(this.reqParams)
       this.storeList = res.rows
