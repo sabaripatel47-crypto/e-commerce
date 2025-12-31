@@ -4,7 +4,7 @@
     <div class="head-container page-search">
       <span class="search-label">店铺搜索：</span>
       <el-input placeholder="请输入店铺名称" v-model="reqParams.keyword" clearable class="handle-input"
-        style="width: 200px; margin-right: 10px;" @keyup.enter.native="getList(1)"></el-input>
+        style="width: 200px; margin-right: 10px;" @keyup.enter.native="getList(1)" @clear="getList(1)"></el-input>
       <el-button type="primary" icon="el-icon-search" @click="getList(1)">搜索</el-button>
       <el-button type="primary" plain icon="el-icon-plus" @click="addStore()">新增</el-button>
     </div>
