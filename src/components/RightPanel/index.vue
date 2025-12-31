@@ -1,5 +1,5 @@
 <template>
-  <div ref="rightPanel" class="rightPanel-container">
+  <div ref="rightPanel" class="rightPanel-container" :class="{ show: show }">
     <div class="handle-button" :style="{ 'background-color': theme }" @click.stop="show = !show">
       <i :class="show ? 'el-icon-close' : 'el-icon-setting'" />
     </div>
@@ -35,6 +35,11 @@ export default {
   top: 50%;
   right: 0;
   z-index: 40000;
+  transition: right 0.3s ease;
+
+  &.show {
+    right: 280px; // el-drawer 的宽度
+  }
 }
 
 .handle-button {
