@@ -32,7 +32,7 @@ export default {
 <style lang="scss" scoped>
 .rightPanel-container {
   position: fixed;
-  top: 200px;
+  top: 50%;
   right: 0;
   z-index: 40000;
 }
