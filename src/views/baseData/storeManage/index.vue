@@ -1,23 +1,12 @@
 <template>
   <div class="app-container">
-    <!-- 搜索 -->
-    <div class="head-container">
-      <el-form class="page-search" inline ref="page-filter">
-        <el-form-item label="店铺搜索：" style="margin-right: 20px;">
-          <el-input
-            placeholder="请输入店铺名称"
-            v-model="reqParams.keyword"
-            clearable
-            class="handle-input"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="el-icon-search" @click="getList(1)">搜索</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" plain icon="el-icon-plus" @click="addStore()">新增</el-button>
-        </el-form-item>
-      </el-form>
+    <!-- 搜索(不要用el-form来布局,不然输入框按回车会导致表单提交刷新页面) -->
+    <div class="head-container page-search">
+      <span class="search-label">店铺搜索：</span>
+      <el-input placeholder="请输入店铺名称" v-model="reqParams.keyword" clearable class="handle-input"
+        style="width: 200px; margin-right: 10px;" @keyup.enter.native="getList(1)"></el-input>
+      <el-button type="primary" icon="el-icon-search" @click="getList(1)">搜索</el-button>
+      <el-button type="primary" plain icon="el-icon-plus" @click="addStore()">新增</el-button>
     </div>
     <div class="container">
       <!-- 表格 -->
@@ -30,7 +19,7 @@
         <el-table-column prop="managerName" label="店铺负责人" align="center"></el-table-column>
         <el-table-column prop="storeStatusName" label="店铺状态" align="center"></el-table-column>
         <el-table-column label="操作" width="200" align="center">
-          <template v-slot="{row}">
+          <template v-slot="{ row }">
             <el-button size="mini" type="text" icon="el-icon-view" @click="getStoreDetail(row)">详情</el-button>
             <el-button size="mini" type="text" icon="el-icon-edit" @click="editStore(row)">修改</el-button>
             <!-- <el-button
@@ -43,13 +32,8 @@
         </el-table-column>
       </el-table>
       <!-- 分页 -->
-      <pagination
-        v-show="total>0"
-        :total="total"
-        :page.sync="reqParams.page"
-        :limit.sync="reqParams.pageSize"
-        @pagination="getList"
-      />
+      <pagination v-show="total > 0" :total="total" :page.sync="reqParams.page" :limit.sync="reqParams.pageSize"
+        @pagination="getList" />
     </div>
     <!-- 详情弹层 -->
     <el-dialog title="店铺详情" :visible="showDetail" :before-close="cleanDetail" width="40%">
@@ -65,85 +49,36 @@
     </el-dialog>
 
     <!--新增弹窗-->
-    <el-dialog
-      :close-on-click-modal="false"
-      :title="isEdit ? '修改店铺' : '新增店铺'"
-      :visible="showAddDialog"
-      :before-close="cleanAdd"
-      width="40%"
-    >
-      <el-form
-        :model="editDetail"
-        :rules="storeRules"
-        ref="addDetailRef"
-        label-width="120px"
-        label-position="right"
-      >
+    <el-dialog :close-on-click-modal="false" :title="isEdit ? '修改店铺' : '新增店铺'" :visible="showAddDialog"
+      :before-close="cleanAdd" width="40%">
+      <el-form :model="editDetail" :rules="storeRules" ref="addDetailRef" label-width="120px" label-position="right">
         <el-form-item label="店铺编号" prop="storeCode">
-          <el-input
-            class="el-form-item-width40"
-            v-model="editDetail.storeCode"
-            clearable
-            placeholder="请输入店铺编号"
-          ></el-input>
+          <el-input class="el-form-item-width40" v-model="editDetail.storeCode" clearable
+            placeholder="请输入店铺编号"></el-input>
         </el-form-item>
         <el-form-item label="店铺后台名称" prop="storeName">
-          <el-input
-            class="el-form-item-width40"
-            v-model="editDetail.storeName"
-            clearable
-            placeholder="请输入店铺后台名称"
-          ></el-input>
+          <el-input class="el-form-item-width40" v-model="editDetail.storeName" clearable
+            placeholder="请输入店铺后台名称"></el-input>
         </el-form-item>
         <el-form-item label="显示名称" prop="showName">
-          <el-input
-            class="el-form-item-width40"
-            v-model="editDetail.showName"
-            clearable
-            placeholder="请输入显示名称"
-          ></el-input>
+          <el-input class="el-form-item-width40" v-model="editDetail.showName" clearable
+            placeholder="请输入显示名称"></el-input>
         </el-form-item>
         <el-form-item label="所属平台" prop="platform">
-          <el-select
-            class="el-form-item-width40"
-            v-model="editDetail.platform"
-            filterable
-            placeholder="请选择所属平台"
-          >
-            <el-option
-              v-for="item in platforms"
-              :label="item.name"
-              :value="item.code"
-              :key="item.code"
-            ></el-option>
+          <el-select class="el-form-item-width40" v-model="editDetail.platform" filterable placeholder="请选择所属平台">
+            <el-option v-for="item in platforms" :label="item.name" :value="item.code" :key="item.code"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="所属公司" prop="companyUuid">
-          <el-select
-            class="el-form-item-width40"
-            v-model="editDetail.companyUuid"
-            placeholder="请选择所属公司"
-          >
-            <el-option
-              v-for="item in companys"
-              :label="item.name"
-              :value="item.code"
-              :key="item.code"
-            ></el-option>
+          <el-select class="el-form-item-width40" v-model="editDetail.companyUuid" placeholder="请选择所属公司">
+            <el-option v-for="item in companys" :label="item.name" :value="item.code" :key="item.code"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="店铺负责人" prop="manager">
-          <el-cascader
-            class="el-form-item-width40"
-            filterable
-            v-model="editDetail.manager"
-            @change="changeeeeeeeeeee"
-            :options="departments"
-            :show-all-levels="false"
-            :props="{children: 'children',label: 'deptName', value:'deptId', checkStrictly: false }"
-            clearable
-            :placeholder="editDetail.managerName"
-          ></el-cascader>
+          <el-cascader class="el-form-item-width40" filterable v-model="editDetail.manager" @change="changeeeeeeeeeee"
+            :options="departments" :show-all-levels="false"
+            :props="{ children: 'children', label: 'deptName', value: 'deptId', checkStrictly: false }" clearable
+            :placeholder="editDetail.managerName"></el-cascader>
         </el-form-item>
         <el-form-item label="店铺状态" prop="storeStatus">
           <el-radio-group class="el-form-item-width40" v-model="editDetail.storeStatus">
@@ -160,8 +95,8 @@
     </el-dialog>
   </div>
 </template>
-  
-  <script>
+
+<script>
 import {
   getStoreList,
   addStore,
@@ -214,7 +149,7 @@ export default {
         page: 1,
         pageSize: 20,
       },
-
+      // el-form校验
       storeRules: {
         storeCode: [
           { required: true, message: '请输入店铺编码', trigger: 'blur' },
@@ -258,6 +193,7 @@ export default {
       },
     }
   },
+  // 组件加载时调用
   created() {
     this.getDeptTree()
 
@@ -292,6 +228,7 @@ export default {
     // 获取列表信息
     async getList(page) {
       this.tableLoading = true
+      //如果传入的是1那就重置到第一页,一般是搜索会重置到第一页
       if (page == 1) {
         this.reqParams.page = page
       }
@@ -420,9 +357,16 @@ export default {
   },
 }
 </script>
-  
-  <style scoped>
+
+<style scoped>
+.page-search {
+  display: flex;
+  align-items: center;
+}
+
+.search-label {
+  font-size: 14px;
+  color: #606266;
+  margin-right: 10px;
+}
 </style>
-  
-  
-  
